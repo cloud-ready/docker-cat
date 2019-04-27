@@ -4,6 +4,10 @@
 # But not these files...
 !/.gitignore
 !/appdatas/cat/client.xml
+# I do not want changes on 'appdatas/cat/datasources.xml' tracked because it is updated by bootstrap script.
+# git update-index --assume-unchanged data/appdatas/cat/datasources.xml
+# If you want to track the changes again use this command:
+# git update-index --no-assume-unchanged data/appdatas/cat/datasources.xml
 !/appdatas/cat/datasources.xml
 !/applogs/.gitignore
 # etc...
