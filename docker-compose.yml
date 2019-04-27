@@ -1,0 +1,55 @@
+# mail@dongguochao.com
+
+version: '2.2'
+
+services:
+  cat:
+    command: /bin/sh -c '/datasources.sh && catalina.sh run'
+    #command: /bin/sh -c 'sleep 1d'
+    container_name: ${CONTAINER_HOST_NAME:-cat}
+    environment:
+    # if you have your own mysql, config it here, and disable the 'mysql' config blow
+    - MYSQL_URL=${MYSQL_URL:-standalone.mysql} # links will maintain /etc/hosts, just use 'container_name'
+    - MYSQL_PORT=${MYSQL_PORT:-3306}
+    - MYSQL_USERNAME=${MYSQL_USERNAME:-root}
+    - MYSQL_PASSWD=${MYSQL_PASSWD:-root_pass}
+    - MYSQL_SCHEMA=${MYSQL_SCHEMA:-cat}
+    hostname: ${CONTAINER_HOST_NAME:-cat}
+    image: ${IMAGE_PREFIX:-cloudready/}${IMAGE_NAME:-cat}:${IMAGE_TAG:-3.0.0}
+    networks:
+      local-network:
+        ipv4_address: 172.16.238.238
+    ports:
+    - "${CAT_PORT_8080:-8080}:8080"
+    - "${CAT_PORT_2280:-2280}:2280"
+    restart: always
+    volumes:
+    # default value of server ip in appdatas/cat/client.xml is 127.0.0.1, you can replace it with real IP of cluster servers
+    # /datasources.sh will replace variables in appdatas/cat/datasources.xml when container start (see command instruction)
+    - appdatas:/data/appdatas
+    - applogs:/data/applogs
+
+networks:
+  # docker network create --driver=bridge --ipam-driver=default --subnet=172.16.238.0/24 local-network
+  local-network:
+    external: true
+    driver: bridge
+    enable_ipv6: true
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.16.238.0/24
+
+volumes:
+  appdatas:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${PWD}/data/appdatas
+      o: bind
+  applogs:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${PWD}/data/applogs
+      o: bind
