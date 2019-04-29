@@ -3,7 +3,7 @@ version: '2.2'
 services:
   cat:
     command: /bin/sh -c '/datasources.sh && catalina.sh jpda run'
-    #command: /bin/sh -c 'sleep 1d'
+
     container_name: ${CONTAINER_HOST_NAME:-cat}
     environment:
     # if you have your own mysql, config it here, and disable the 'mysql' config blow
@@ -12,16 +12,16 @@ services:
     - MYSQL_USERNAME=${MYSQL_USERNAME:-root}
     - MYSQL_PASSWD=${MYSQL_PASSWD:-root_pass}
     - MYSQL_SCHEMA=${MYSQL_SCHEMA:-cat}
-    - JPDA_TRANSPORT=dt_socket
-    - JPDA_ADDRESS=1043
-    - JPDA_SUSPEND=n
+
+
+
     hostname: ${CONTAINER_HOST_NAME:-cat}
     image: ${IMAGE_PREFIX:-cloudready/}${IMAGE_NAME:-cat}:${IMAGE_TAG:-3.0.0}
-    networks:
-      local-network:
-        ipv4_address: 172.16.238.238
+    network_mode: bridge
+
+
     ports:
-    - "${JPDA_ADDRESS:-1043}:${JPDA_ADDRESS:-1043}"
+
     - "${CAT_PORT_8080:-8080}:8080"
     - "${CAT_PORT_2280:-2280}:2280"
     restart: always
@@ -30,17 +30,6 @@ services:
     # /datasources.sh will replace variables in appdatas/cat/datasources.xml when container start (see command instruction)
     - appdatas:/data/appdatas
     - applogs:/data/applogs
-
-networks:
-  # docker network create --driver=bridge --ipam-driver=default --subnet=172.16.238.0/24 local-network
-  local-network:
-    external: true
-    driver: bridge
-    enable_ipv6: true
-    ipam:
-      driver: default
-      config:
-        - subnet: 172.16.238.0/24
 
 volumes:
   appdatas:
